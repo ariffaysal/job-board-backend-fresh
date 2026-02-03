@@ -9,8 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const agency_module_1 = require("./agency/agency.module");
 const auth_module_1 = require("./auth/auth.module");
+const agency_module_1 = require("./agency/agency.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;

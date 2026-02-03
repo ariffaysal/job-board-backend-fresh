@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AgencyModule } from './agency/agency.module';
+import { AgencyService } from './agency/agency.service';
 import { AuthModule } from './auth/auth.module';
+import { AgencyModule } from './agency/agency.module';
 
 @Module({
   imports: [
