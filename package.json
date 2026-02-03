@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "build": "nest build",
-  "start": "node dist/main.js",
-  "start:dev": "nest start --watch"
-},
+{
+  "scripts": {
+    "start": "node dist/main.js",
+    "start:dev": "nest start --watch",
+    "build": "nest build"
+  }
+}
+
+
+,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ariffaysal/job-board-backend-fresh.git"
