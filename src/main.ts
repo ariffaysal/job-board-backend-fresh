@@ -1,18 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as morgan from 'morgan'; // 1. Import morgan
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS so your frontend can call backend
+  // 2. Add this line to log every request (GET, POST, etc.)
+  app.use(morgan('dev')); 
+
   app.enableCors({
-    origin: ['https://front-end-gold-five.vercel.app'], // ✅ your deployed frontend URL
-    credentials: true, // keep if you’re using cookies or auth headers
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: ['https://front-end-gold-five.vercel.app'],
+    credentials: true,
   });
 
   await app.listen(process.env.PORT || 3000);
   console.log(`🚀 Backend running on port ${process.env.PORT || 3000}`);
 }
-bootstrap(); 
+bootstrap();
