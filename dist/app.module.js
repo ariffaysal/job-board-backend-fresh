@@ -27,6 +27,14 @@ exports.AppModule = AppModule = __decorate([
                     url: config.get('DATABASE_URL'),
                     autoLoadEntities: true,
                     synchronize: true,
+                    ssl: {
+                        rejectUnauthorized: false,
+                    },
+                    extra: {
+                        ssl: {
+                            rejectUnauthorized: false,
+                        },
+                    },
                 }),
             }),
             auth_module_1.AuthModule,
