@@ -24,7 +24,6 @@ import { fileUploadOptions } from './utils/fileUpload';
 import { AgencyValidationPipe } from './pipes/agency-validation.pipe';
 import { CreateClientDto } from './dto/create-client.dto';
 import { CreateJobDto } from './dto/create-job.dto';
-import { LoginDto } from './dto/login.dto';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 
@@ -33,20 +32,10 @@ export class AgencyController {
   constructor(private readonly agencyService: AgencyService) {}
 
   // ========== PUBLIC ROUTES (No authentication needed) ==========
-
-  @Post()
-  @UsePipes(new AgencyValidationPipe())
-  createAgency(@Body() dto: CreateAgencyDto) {
-    return this.agencyService.createAgency(dto);
-  }
-
-  @Post('login')
-  @UsePipes(new AgencyValidationPipe())
-  login(@Body() dto: LoginDto) {
-    return this.agencyService.login(dto);
-  }
+  // Note: Agency creation and login should be handled through /auth endpoints
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   getAllAgencies() {
     return this.agencyService.getAllAgencies();
   }

@@ -7,48 +7,18 @@ import { Client } from './entities/client.entity';
 import { Job } from './entities/job.entity';
 import { Application } from './entities/application.entity';
 import { CreateAgencyDto } from './dto/create-agency.dto';
-import { LoginDto } from './dto/login.dto';
-import { JwtService } from '@nestjs/jwt';
-import { hashPassword, comparePasswords } from './utils/bcrypt.util';
 import { CreateApplicationDto } from './dto/create-application.dto';
 
 @Injectable()
 export class AgencyService {
-  jobRepository: any;
   constructor(
     @InjectRepository(Agency) private agencyRepo: Repository<Agency>,
     @InjectRepository(Client) private clientRepo: Repository<Client>,
     @InjectRepository(Job) private jobRepo: Repository<Job>,
     @InjectRepository(Application) private appRepo: Repository<Application>,
-    private jwtService: JwtService,
   ) {}
 
-  // --- Agency CRUD & Auth ---
-  async createAgency(dto: CreateAgencyDto) {
-    const existing = await this.agencyRepo.findOneBy({ email: dto.email });
-    if (existing) {
-      throw new HttpException('Email already exists', HttpStatus.CONFLICT);
-    }
-    const hashedPassword = await hashPassword(dto.password);
-    const agency = this.agencyRepo.create({ ...dto, password: hashedPassword });
-    const saved = await this.agencyRepo.save(agency);
-    
-    // ✅ Remove password from response
-    const { password, ...safeAgency } = saved;
-    return safeAgency;
-  }
-
-  async login(dto: LoginDto) {
-    const agency = await this.agencyRepo.findOneBy({ email: dto.email });
-    if (!agency) throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-
-    const isMatch = await comparePasswords(dto.password, agency.password);
-    if (!isMatch) throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-
-    const payload = { id: agency.id, email: agency.email };
-    const token = this.jwtService.sign(payload);
-    return { access_token: token };
-  }
+  // --- Agency CRUD ---
 
   async getAllAgencies() {
     const agencies = await this.agencyRepo.find({ relations: ['clients'] });
@@ -72,7 +42,12 @@ export class AgencyService {
   async updateAgency(id: number, dto: Partial<CreateAgencyDto>) {
     const agency = await this.agencyRepo.findOneBy({ id });
     if (!agency) throw new HttpException('Agency not found', HttpStatus.NOT_FOUND);
-    if (dto.password) dto.password = await hashPassword(dto.password);
+    
+    // Note: Password updates should be handled through auth service
+    if (dto.password) {
+      delete dto.password;
+    }
+    
     Object.assign(agency, dto);
     const updated = await this.agencyRepo.save(agency);
     

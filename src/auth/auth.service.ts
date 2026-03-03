@@ -2,8 +2,20 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { Agency } from '../agency/entities/agency.entity';
+
+export type UserRole = 'agency' | 'client' | 'admin';
+
+export interface JwtPayload {
+  sub: number;
+  email: string;
+  name: string;
+  role: UserRole;
+  agencyId: number;
+  clientId?: number;
+}
 
 @Injectable()
 export class AuthService {
@@ -11,19 +23,17 @@ export class AuthService {
     @InjectRepository(Agency)
     private agencyRepo: Repository<Agency>,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async register(name: string, email: string, password: string) {
-    console.log('🔵 AUTH: Registering new agency:', email);
-
     const existing = await this.agencyRepo.findOne({ where: { email } });
     if (existing) {
-      console.error('❌ AUTH: Email already exists');
       throw new ConflictException('Email already registered');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('🔵 AUTH: Password hashed');
+    const bcryptRounds = parseInt(this.configService.get<string>('BCRYPT_ROUNDS') || '10');
+    const hashedPassword = await bcrypt.hash(password, bcryptRounds);
 
     const agency = this.agencyRepo.create({
       name,
@@ -31,69 +41,73 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    await this.agencyRepo.save(agency);
-    console.log('✅ AUTH: Agency created with ID:', agency.id);
+    const savedAgency = await this.agencyRepo.save(agency);
 
-    const payload = { 
-      sub: agency.id, 
-      email: agency.email,
-      name: agency.name,
-      role: 'agency'
+    const payload: JwtPayload = {
+      sub: savedAgency.id,
+      email: savedAgency.email,
+      name: savedAgency.name,
+      role: 'agency',
+      agencyId: savedAgency.id,
     };
-    const access_token = this.jwtService.sign(payload);
 
-    console.log('✅ AUTH: Token created');
+    const access_token = this.jwtService.sign(payload);
 
     return {
       access_token,
-      user: {  // ✅ Changed from 'agency' to 'user'
-        id: agency.id,
-        name: agency.name,
-        email: agency.email,
-        role: 'agency',  // ✅ Added role
+      user: {
+        id: savedAgency.id,
+        name: savedAgency.name,
+        email: savedAgency.email,
+        role: 'agency',
+        agencyId: savedAgency.id,
       },
     };
   }
 
   async login(email: string, password: string) {
-    console.log('🔵 AUTH: Login attempt for:', email);
-
     const agency = await this.agencyRepo.findOne({ where: { email } });
 
     if (!agency) {
-      console.error('❌ AUTH: Agency not found');
       throw new UnauthorizedException('Invalid credentials');
     }
-
-    console.log('🔵 AUTH: Agency found:', agency.name);
 
     const isPasswordValid = await bcrypt.compare(password, agency.password);
 
     if (!isPasswordValid) {
-      console.error('❌ AUTH: Invalid password');
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    console.log('✅ AUTH: Password valid');
-
-    const payload = { 
-      sub: agency.id, 
+    const payload: JwtPayload = {
+      sub: agency.id,
       email: agency.email,
       name: agency.name,
-      role: 'agency'
+      role: 'agency',
+      agencyId: agency.id,
     };
-    const access_token = this.jwtService.sign(payload);
 
-    console.log('✅ AUTH: Token created:', access_token.substring(0, 30) + '...');
+    const access_token = this.jwtService.sign(payload);
 
     return {
       access_token,
-      user: {  // ✅ Changed from 'agency' to 'user'
+      user: {
         id: agency.id,
         name: agency.name,
         email: agency.email,
-        role: 'agency',  // ✅ Added role
+        role: 'agency',
+        agencyId: agency.id,
       },
     };
+  }
+
+  async validateUser(email: string, password: string): Promise<any> {
+    const agency = await this.agencyRepo.findOne({ where: { email } });
+    
+    if (agency && await bcrypt.compare(password, agency.password)) {
+      const { password, ...result } = agency;
+      return result;
+    }
+    
+    return null;
   }
 }
