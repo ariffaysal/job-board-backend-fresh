@@ -160,14 +160,14 @@ async getJobById(id: number) {
     const job = await this.jobRepo.findOne({ where: { id: jobId }, relations: ['client', 'client.agency'] });
     if (!job) throw new HttpException('Job not found', HttpStatus.NOT_FOUND);
 
-    const application = this.appRepo.create({
+const application = this.appRepo.create({
       candidateName: dto.candidateName,
       candidateEmail: dto.candidateEmail,
       coverLetter: dto.coverLetter,
       resume: resume?.filename,
       job,
-      status: 'applied',
-    });
+      status: 'applied' as any,
+    } as any);
 
     const saved = await this.appRepo.save(application);
 

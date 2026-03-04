@@ -50,69 +50,64 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 const bcrypt = __importStar(require("bcrypt"));
 const agency_entity_1 = require("../agency/entities/agency.entity");
 let AuthService = class AuthService {
-    constructor(agencyRepo, jwtService) {
+    constructor(agencyRepo, jwtService, configService) {
         this.agencyRepo = agencyRepo;
         this.jwtService = jwtService;
+        this.configService = configService;
     }
     async register(name, email, password) {
-        console.log('🔵 AUTH: Registering new agency:', email);
         const existing = await this.agencyRepo.findOne({ where: { email } });
         if (existing) {
-            console.error('❌ AUTH: Email already exists');
             throw new common_1.ConflictException('Email already registered');
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        console.log('🔵 AUTH: Password hashed');
+        const bcryptRounds = parseInt(this.configService.get('BCRYPT_ROUNDS') || '10');
+        const hashedPassword = await bcrypt.hash(password, bcryptRounds);
         const agency = this.agencyRepo.create({
             name,
             email,
             password: hashedPassword,
         });
-        await this.agencyRepo.save(agency);
-        console.log('✅ AUTH: Agency created with ID:', agency.id);
+        const savedAgency = await this.agencyRepo.save(agency);
         const payload = {
-            sub: agency.id,
-            email: agency.email,
-            name: agency.name,
-            role: 'agency'
+            sub: savedAgency.id,
+            email: savedAgency.email,
+            name: savedAgency.name,
+            role: 'agency',
+            agencyId: savedAgency.id,
         };
         const access_token = this.jwtService.sign(payload);
-        console.log('✅ AUTH: Token created');
         return {
             access_token,
             user: {
-                id: agency.id,
-                name: agency.name,
-                email: agency.email,
+                id: savedAgency.id,
+                name: savedAgency.name,
+                email: savedAgency.email,
                 role: 'agency',
+                agencyId: savedAgency.id,
             },
         };
     }
     async login(email, password) {
-        console.log('🔵 AUTH: Login attempt for:', email);
         const agency = await this.agencyRepo.findOne({ where: { email } });
         if (!agency) {
-            console.error('❌ AUTH: Agency not found');
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        console.log('🔵 AUTH: Agency found:', agency.name);
         const isPasswordValid = await bcrypt.compare(password, agency.password);
         if (!isPasswordValid) {
-            console.error('❌ AUTH: Invalid password');
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        console.log('✅ AUTH: Password valid');
         const payload = {
             sub: agency.id,
             email: agency.email,
             name: agency.name,
-            role: 'agency'
+            role: 'agency',
+            agencyId: agency.id,
         };
         const access_token = this.jwtService.sign(payload);
-        console.log('✅ AUTH: Token created:', access_token.substring(0, 30) + '...');
         return {
             access_token,
             user: {
@@ -120,8 +115,17 @@ let AuthService = class AuthService {
                 name: agency.name,
                 email: agency.email,
                 role: 'agency',
+                agencyId: agency.id,
             },
         };
+    }
+    async validateUser(email, password) {
+        const agency = await this.agencyRepo.findOne({ where: { email } });
+        if (agency && await bcrypt.compare(password, agency.password)) {
+            const { password, ...result } = agency;
+            return result;
+        }
+        return null;
     }
 };
 exports.AuthService = AuthService;
@@ -129,6 +133,7 @@ exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(agency_entity_1.Agency)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        config_1.ConfigService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

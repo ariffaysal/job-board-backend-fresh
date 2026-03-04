@@ -1,0 +1,33 @@
+export declare class EmailTemplateService {
+    generateApplicationNotificationTemplate(data: {
+        clientName: string;
+        jobTitle: string;
+        candidateName: string;
+        candidateEmail: string;
+        phone?: string;
+        coverLetter?: string;
+        currentJobTitle?: string;
+        yearsOfExperience?: number;
+        skills?: string;
+        dashboardUrl: string;
+    }): string;
+    generateStatusUpdateTemplate(data: {
+        candidateName: string;
+        jobTitle: string;
+        companyName: string;
+        newStatus: string;
+        interviewDate?: Date;
+        rejectionReason?: string;
+        dashboardUrl: string;
+    }): string;
+    generateWelcomeTemplate(data: {
+        agencyName: string;
+        dashboardUrl: string;
+    }): string;
+    generateJobPublishedTemplate(data: {
+        clientName: string;
+        jobTitle: string;
+        jobUrl: string;
+        dashboardUrl: string;
+    }): string;
+}

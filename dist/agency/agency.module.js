@@ -15,7 +15,6 @@ const agency_entity_1 = require("./entities/agency.entity");
 const client_entity_1 = require("./entities/client.entity");
 const job_entity_1 = require("./entities/job.entity");
 const application_entity_1 = require("./entities/application.entity");
-const jwt_1 = require("@nestjs/jwt");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let AgencyModule = class AgencyModule {
 };
@@ -24,10 +23,6 @@ exports.AgencyModule = AgencyModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([agency_entity_1.Agency, client_entity_1.Client, job_entity_1.Job, application_entity_1.Application]),
-            jwt_1.JwtModule.register({
-                secret: process.env.JWT_SECRET || 'defaultSecret',
-                signOptions: { expiresIn: '1h' },
-            }),
         ],
         controllers: [agency_controller_1.AgencyController],
         providers: [agency_service_1.AgencyService, jwt_auth_guard_1.JwtAuthGuard],

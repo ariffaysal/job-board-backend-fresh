@@ -3,4 +3,7 @@ export declare class CreateClientDto {
     email?: string;
     contactPerson?: string;
     phone?: string;
+    address?: string;
+    industry?: string;
+    description?: string;
 }

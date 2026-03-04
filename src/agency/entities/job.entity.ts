@@ -122,6 +122,9 @@ export class Job {
   @DeleteDateColumn()
   deletedAt?: Date;
 
+  @Column({ nullable: true })
+attachment: string;
+
   // Private instance of SlugService for slug generation
   private static slugService = new SlugService();
 

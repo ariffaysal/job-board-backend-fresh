@@ -15,15 +15,46 @@ class CreateAgencyDto {
 }
 exports.CreateAgencyDto = CreateAgencyDto;
 __decorate([
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MaxLength)(200),
     __metadata("design:type", String)
 ], CreateAgencyDto.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MaxLength)(255),
     __metadata("design:type", String)
 ], CreateAgencyDto.prototype, "email", void 0);
 __decorate([
-    (0, class_validator_1.MinLength)(6),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MinLength)(8),
+    (0, class_validator_1.MaxLength)(100),
     __metadata("design:type", String)
 ], CreateAgencyDto.prototype, "password", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(20),
+    __metadata("design:type", String)
+], CreateAgencyDto.prototype, "phone", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(500),
+    __metadata("design:type", String)
+], CreateAgencyDto.prototype, "address", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(100),
+    __metadata("design:type", String)
+], CreateAgencyDto.prototype, "industry", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(1000),
+    __metadata("design:type", String)
+], CreateAgencyDto.prototype, "description", void 0);
 //# sourceMappingURL=create-agency.dto.js.map

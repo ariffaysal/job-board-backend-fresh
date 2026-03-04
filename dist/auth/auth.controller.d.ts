@@ -9,6 +9,7 @@ export declare class AuthController {
             name: string;
             email: string;
             role: string;
+            agencyId: number;
         };
     }>;
     login(email: string, password: string): Promise<{
@@ -18,6 +19,7 @@ export declare class AuthController {
             name: string;
             email: string;
             role: string;
+            agencyId: number;
         };
     }>;
 }

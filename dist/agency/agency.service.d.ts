@@ -4,26 +4,13 @@ import { Client } from './entities/client.entity';
 import { Job } from './entities/job.entity';
 import { Application } from './entities/application.entity';
 import { CreateAgencyDto } from './dto/create-agency.dto';
-import { LoginDto } from './dto/login.dto';
-import { JwtService } from '@nestjs/jwt';
 import { CreateApplicationDto } from './dto/create-application.dto';
 export declare class AgencyService {
     private agencyRepo;
     private clientRepo;
     private jobRepo;
     private appRepo;
-    private jwtService;
-    jobRepository: any;
-    constructor(agencyRepo: Repository<Agency>, clientRepo: Repository<Client>, jobRepo: Repository<Job>, appRepo: Repository<Application>, jwtService: JwtService);
-    createAgency(dto: CreateAgencyDto): Promise<{
-        id: number;
-        email: string;
-        name: string;
-        clients: Client[];
-    }>;
-    login(dto: LoginDto): Promise<{
-        access_token: string;
-    }>;
+    constructor(agencyRepo: Repository<Agency>, clientRepo: Repository<Client>, jobRepo: Repository<Job>, appRepo: Repository<Application>);
     getAllAgencies(): Promise<{
         id: number;
         email: string;
@@ -59,10 +46,10 @@ export declare class AgencyService {
         id: number;
         title: string;
         description: string;
-        location: any;
-        salary: any;
+        location: string;
+        salary: number;
         attachment: string;
-        createdAt: any;
+        createdAt: Date;
     }>;
     getJobsByClient(clientId: number): Promise<{
         id: number;
@@ -71,7 +58,7 @@ export declare class AgencyService {
         attachment: string;
     }[]>;
     deleteJob(jobId: number): Promise<Job>;
-    applyToJob(jobId: number, dto: CreateApplicationDto, resume?: Express.Multer.File): Promise<Application>;
+    applyToJob(jobId: number, dto: CreateApplicationDto, resume?: Express.Multer.File): Promise<Application[]>;
     getApplicationsByJob(jobId: number): Promise<Application[]>;
     updateApplication(id: number, dto: Partial<any>): Promise<Application>;
     deleteApplication(id: number): Promise<Application>;

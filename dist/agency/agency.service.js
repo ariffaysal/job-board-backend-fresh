@@ -20,37 +20,12 @@ const agency_entity_1 = require("./entities/agency.entity");
 const client_entity_1 = require("./entities/client.entity");
 const job_entity_1 = require("./entities/job.entity");
 const application_entity_1 = require("./entities/application.entity");
-const jwt_1 = require("@nestjs/jwt");
-const bcrypt_util_1 = require("./utils/bcrypt.util");
 let AgencyService = class AgencyService {
-    constructor(agencyRepo, clientRepo, jobRepo, appRepo, jwtService) {
+    constructor(agencyRepo, clientRepo, jobRepo, appRepo) {
         this.agencyRepo = agencyRepo;
         this.clientRepo = clientRepo;
         this.jobRepo = jobRepo;
         this.appRepo = appRepo;
-        this.jwtService = jwtService;
-    }
-    async createAgency(dto) {
-        const existing = await this.agencyRepo.findOneBy({ email: dto.email });
-        if (existing) {
-            throw new common_1.HttpException('Email already exists', common_1.HttpStatus.CONFLICT);
-        }
-        const hashedPassword = await (0, bcrypt_util_1.hashPassword)(dto.password);
-        const agency = this.agencyRepo.create({ ...dto, password: hashedPassword });
-        const saved = await this.agencyRepo.save(agency);
-        const { password, ...safeAgency } = saved;
-        return safeAgency;
-    }
-    async login(dto) {
-        const agency = await this.agencyRepo.findOneBy({ email: dto.email });
-        if (!agency)
-            throw new common_1.HttpException('Invalid credentials', common_1.HttpStatus.UNAUTHORIZED);
-        const isMatch = await (0, bcrypt_util_1.comparePasswords)(dto.password, agency.password);
-        if (!isMatch)
-            throw new common_1.HttpException('Invalid credentials', common_1.HttpStatus.UNAUTHORIZED);
-        const payload = { id: agency.id, email: agency.email };
-        const token = this.jwtService.sign(payload);
-        return { access_token: token };
     }
     async getAllAgencies() {
         const agencies = await this.agencyRepo.find({ relations: ['clients'] });
@@ -70,8 +45,9 @@ let AgencyService = class AgencyService {
         const agency = await this.agencyRepo.findOneBy({ id });
         if (!agency)
             throw new common_1.HttpException('Agency not found', common_1.HttpStatus.NOT_FOUND);
-        if (dto.password)
-            dto.password = await (0, bcrypt_util_1.hashPassword)(dto.password);
+        if (dto.password) {
+            delete dto.password;
+        }
         Object.assign(agency, dto);
         const updated = await this.agencyRepo.save(agency);
         const { password, ...safeAgency } = updated;
@@ -224,8 +200,7 @@ exports.AgencyService = AgencyService = __decorate([
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.Repository,
-        jwt_1.JwtService])
+        typeorm_2.Repository])
 ], AgencyService);
 function sendEmail(email, arg1, arg2) {
     throw new Error('Function not implemented.');

@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AgencyController = void 0;
 const common_1 = require("@nestjs/common");
 const agency_service_1 = require("./agency.service");
-const create_agency_dto_1 = require("./dto/create-agency.dto");
 const update_agency_dto_1 = require("./dto/update-agency.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const platform_express_1 = require("@nestjs/platform-express");
@@ -23,18 +22,11 @@ const fileUpload_1 = require("./utils/fileUpload");
 const agency_validation_pipe_1 = require("./pipes/agency-validation.pipe");
 const create_client_dto_1 = require("./dto/create-client.dto");
 const create_job_dto_1 = require("./dto/create-job.dto");
-const login_dto_1 = require("./dto/login.dto");
 const create_application_dto_1 = require("./dto/create-application.dto");
 const update_application_dto_1 = require("./dto/update-application.dto");
 let AgencyController = class AgencyController {
     constructor(agencyService) {
         this.agencyService = agencyService;
-    }
-    createAgency(dto) {
-        return this.agencyService.createAgency(dto);
-    }
-    login(dto) {
-        return this.agencyService.login(dto);
     }
     getAllAgencies() {
         return this.agencyService.getAllAgencies();
@@ -84,23 +76,8 @@ let AgencyController = class AgencyController {
 };
 exports.AgencyController = AgencyController;
 __decorate([
-    (0, common_1.Post)(),
-    (0, common_1.UsePipes)(new agency_validation_pipe_1.AgencyValidationPipe()),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_agency_dto_1.CreateAgencyDto]),
-    __metadata("design:returntype", void 0)
-], AgencyController.prototype, "createAgency", null);
-__decorate([
-    (0, common_1.Post)('login'),
-    (0, common_1.UsePipes)(new agency_validation_pipe_1.AgencyValidationPipe()),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [login_dto_1.LoginDto]),
-    __metadata("design:returntype", void 0)
-], AgencyController.prototype, "login", null);
-__decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)

@@ -96,7 +96,7 @@ export class JobsService {
     // Set default values
     const jobData: Partial<Job> = {
       ...createJobDto,
-      status: createJobDto.status || JobStatus.DRAFT,
+      status: (createJobDto.status || JobStatus.DRAFT) as any,
       type: createJobDto.type || JobType.FULL_TIME,
     };
 
